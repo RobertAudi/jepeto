@@ -9,6 +9,8 @@ Roadmap
 
 - Edit a post file and the YAML Front Matter simultaneously or
   individually using Jepeto.
+- When run without any args, give the choice (via a config file, maybe?)
+  to generate a post file with a default name and YAML Front Matter.
 
 Compatibility
 -------------
