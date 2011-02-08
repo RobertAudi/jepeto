@@ -10,6 +10,14 @@ Roadmap
 - Edit a post file and the YAML Front Matter simultaneously or
   individually using Jepeto.
 
+Compatibility
+-------------
+
+Jepeto require Ruby 1.9+ and will be tested exclusively with Ruby
+1.9.2+. MiniTest will be used instead of Test::Unit and until the
+official version of Chronic is compatible with Ruby 1.9, the
+`aaronh-chonic` gem will be used instead.
+
 License
 -------
 
