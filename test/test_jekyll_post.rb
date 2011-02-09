@@ -13,16 +13,14 @@ class TestJekyllPost < MiniTest::Unit::TestCase
     }
   end
 
-  def test_title_is_not_empty
+  def test_title_should_not_be_empty
     @options[:title] = ''
-    post = JekyllPost.new(@options)
-    assert_equal false, post
+    assert_raises(ArgumentError) { Jepeto::JekyllPost.new(@options) }
   end
 
-  def test_title_is_not_nil
+  def test_title_should_not_be_nil
     @options[:title] = nil
-    post = JekyllPost.new(@options)
-    assert_equal false, post
+    assert_raises(ArgumentError) { Jepeto::JekyllPost.new(@options) }
   end
 
 end
