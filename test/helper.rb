@@ -2,6 +2,8 @@
 # in the LOAD_PATH anymore in Ruby 1.9.2
 require_relative "../lib/jepeto.rb"
 
+include Jepeto
+
 # Use MiniTest from RubyGems not the builtin one
 # so that I can use minitest/pride and get colors.
 gem 'minitest'
