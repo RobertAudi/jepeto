@@ -1,4 +1,9 @@
 source "http://rubygems.org"
 
-# Specify your gem's dependencies in jepeto.gemspec
-gemspec
+group :development do
+  gem 'awesome_print'
+end
+
+group :test do
+  gem 'minitest'
+end
