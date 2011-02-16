@@ -1,19 +1,18 @@
-require_relative './jepeto/jekyll_post'
+# General requirements
 require "date"
+require "yaml"
+
+# Debug Shite
+require 'ap'
+
+# Personal requirements
+require_relative './jepeto/jekyll_post'
 
 module Jepeto
-  DEFAULT_OPTIONS = {
-    title: 'The Title',
-    date: Date.today.to_s,
-    extension: 'markdown',
-    draft: false,
-    layout: 'default'
-  }
 
-  VALID_EXTENSIONS = [
-    'markdown', 'mdown', 'md',
-    'txt',
-    'html', 'html5', 'xhtml', 'html'
-    # TODO: Add textile and rdoc extensions
-  ]
+  DEFAULT_OPTIONS = {
+    layout: 'post',
+    extension: 'markdown',
+    published: true
+  }
 end

@@ -1,34 +1,104 @@
 module Jepeto
 
+  # Don't edit this constant hash!
+  # This can be overridden by the DEFAULT_OPTIONS hash
+  # or by options passed in by the user.
+  HARDCODED_DEFAULT_OPTIONS = {
+    date: Date.today.to_s,
+    extension: 'markdown',
+    published: false,
+    layout: 'default'
+  }
+
+  # This array should contain all the file extensions supported by jekyll
+  VALID_FILE_EXTENSIONS = [
+    'markdown', 'mdown', 'md',
+    'textile'
+  ]
+
   class JekyllPost
     attr_reader :options
 
     def initialize(options)
-      # The title, the date and the extension are the only options to be
-      # mandatory! Without them, the post file's name can't be generated.
-      %w[title date extension].each do |option|
-        if options[option.to_sym].nil? || options[option.to_sym].empty?
-          raise ArgumentError, "invalid argument passed (valid #{option} required)"
-        end
+      @options = check_options(options)
+    end
+
+    # Automagically create custom accessor methods for each option
+    %w[title date extension published layout].each do |option|
+      define_method(option) do
+        instance_variable_get("@options").fetch(option.to_sym)
       end
-
-      @options = options
-
-      generate!
     end
 
     def slug
-      @options[:slug].nil? ? generate_slug : @options[:slug]
+      (@slug.nil?) ? generate_slug : @slug
+    end
+
+    def filename
+      (@filename.nil?) ? generate_filename : @filename
+    end
+
+    def yaml_front_matter
+      (@yaml_front_matter.nil?) ? generate_yaml_front_matter : @yaml_front_matter
     end
 
     private
 
-    def generate!
-      generate_slug
+    def check_options(options)
+      # If the user defined default values via the DEFAULT_OPTIONS constant
+      # replace all the nil values with default values.
+      if Jepeto.const_defined?(:DEFAULT_OPTIONS)
+        options = merge_options(options, Jepeto::DEFAULT_OPTIONS)
+      end
+
+      # If there are still some nil values, replace them with default values from
+      # the HARDCODED_DEFAULT_OPTIONS constant.
+      options = merge_options(options, Jepeto::HARDCODED_DEFAULT_OPTIONS)
+
+      options[:extension] = check_extension(options[:extension])
+
+      # At this point, the only value that could potentially
+      # be nil or empty is the title.
+      # That is unacceptable!!
+      if options[:title].nil? || options[:title].empty?
+        raise ArgumentError, "The post file can't be created without a fucking title!!!"
+      end
+
+      options
+    end
+
+    def merge_options(options, default_options)
+      default_options.each do |option, value|
+        if options[option].nil?
+          options[option] = value
+        end
+      end
+
+      options
+    end
+
+    def check_extension(extension)
+      extension.slice!(0) if extension[0] == '.'
+      raise "#{extension} is not a valid extension." unless VALID_FILE_EXTENSIONS.include?(extension)
+
+      @extension = extension
     end
 
     def generate_slug
-      @options[:slug] = @options[:title].downcase.strip.gsub(/[ _\.-]+/, '-')
+      title.downcase.strip.gsub(/[ _\.-]+/, '-')
     end
+
+    def generate_filename
+      "#{date}-#{slug}.#{extension}"
+    end
+
+    def generate_yaml_front_matter
+      @yaml_front_matter = {}
+      @yaml_front_matter['layout']    = layout
+      @yaml_front_matter['title']     = title
+      @yaml_front_matter['published'] = published
+      @yaml_front_matter = @yaml_front_matter.to_yaml
+    end
+
   end
 end
