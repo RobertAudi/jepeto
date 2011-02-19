@@ -1,6 +1,7 @@
 require_relative "helper"
 require "date"
 require 'yaml'
+require 'fileutils'
 
 # TODO: Write a test to check that the layout used as default actually exists
 class TestJekyllPost < MiniTest::Unit::TestCase
@@ -9,12 +10,21 @@ class TestJekyllPost < MiniTest::Unit::TestCase
     @options_list = options_list
     @options = default_options
     @post = Jepeto::JekyllPost.new(@options)
+    @required_constants = %w[HARDCODED_DEFAULT_OPTIONS VALID_FILE_EXTENSIONS POST_DIRECTORY]
   end
 
   def test_options_should_be_retrievable
     @options_list.dup.push('title', 'options').each do |option|
       assert_equal true, @post.respond_to?(option), "#{option.capitalize} should be retrievable"
     end
+  end
+
+  def test_Jepeto_should_have_the_right_constants_defined
+    @required_constants.each do |constant|
+      flunk "The #{constant} constant is not defined" unless Jepeto.const_defined?(constant.to_sym)
+    end
+
+    pass
   end
 
   def test_should_get_the_default_option_if_wasnt_passed
@@ -45,7 +55,6 @@ class TestJekyllPost < MiniTest::Unit::TestCase
   end
 
   def test_extension_should_be_valid
-    # ap @options.merge(extension: "docx")
     assert_raises(RuntimeError) { Jepeto::JekyllPost.new(@options.merge(extension: "docx")) }
   end
 
@@ -67,6 +76,22 @@ class TestJekyllPost < MiniTest::Unit::TestCase
     end
   end
 
+  def test_fail_if_posts_folder_not_found_and_no_location_option_was_passed
+    # Make sure to go in a dir with no posts dir
+    FileUtils.rm_rf(File.join('/tmp', Jepeto::POST_DIRECTORY)) if File.directory?("/tmp/#{Jepeto::POST_DIRECTORY}")
+    Dir.chdir('/tmp')
+    assert_raises(RuntimeError, "Unable to find the posts directory") { Jepeto::JekyllPost.new(@options.merge(debug: false)) }
+  end
+
+
+  def test_there_is_a_debug_option
+    assert_includes @post.options, :debug
+  end
+
+  def test_there_is_a_way_to_test_if_debug_mode_is_on
+    assert Jepeto::JekyllPost.private_method_defined?(:debug?), "The debug? private method should be defined"
+  end
+
   private
 
   def default_options
@@ -75,7 +100,9 @@ class TestJekyllPost < MiniTest::Unit::TestCase
       title:      'The Title',
       extension:  'markdown',
       published:  false,
-      date:       Date.today.to_s
+      date:       Date.today.to_s,
+      location:   '.',
+      debug:      true
     }
   end
 

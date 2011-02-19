@@ -4,10 +4,12 @@ module Jepeto
   # This can be overridden by the DEFAULT_OPTIONS hash
   # or by options passed in by the user.
   HARDCODED_DEFAULT_OPTIONS = {
-    date: Date.today.to_s,
+    date:      Date.today.to_s,
     extension: 'markdown',
     published: false,
-    layout: 'default'
+    layout:    'default',
+    location:  '.',
+    debug:     false
   }
 
   # This array should contain all the file extensions supported by jekyll
@@ -15,6 +17,8 @@ module Jepeto
     'markdown', 'mdown', 'md',
     'textile'
   ]
+
+  POST_DIRECTORY = "_posts"
 
   class JekyllPost
     attr_reader :options
@@ -59,7 +63,20 @@ module Jepeto
         raise ArgumentError, "The post file can't be created without a fucking title!!!"
       end
 
+      unless options[:debug]
+        # The posts file can't be created if the posts directory isn't found
+        raise "Unable to find the posts directory" unless location_found?(options[:location])
+      end
+
       options
+    end
+
+    def debug?
+      @options[:debug]
+    end
+
+    def location_found?(location)
+      File.directory?(File.join(location, Jepeto::POST_DIRECTORY))
     end
 
     def merge_options(options, default_options)
