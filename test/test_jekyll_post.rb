@@ -41,7 +41,7 @@ class TestJekyllPost < MiniTest::Unit::TestCase
   # yyyy-mm-dd
   # ie: 2011-10-15
   def test_date_should_have_the_right_format
-    assert_match /^\d{4}(?:-\d{2}){2}$/, @post.date
+    assert_match(/^\d{4}(?:-\d{2}){2}$/, @post.date)
   end
 
   def test_extension_should_be_valid
@@ -52,13 +52,13 @@ class TestJekyllPost < MiniTest::Unit::TestCase
   # The slug should have the following format:
   # this-is-the-title
   def test_post_should_have_a_slug
-    assert_match /^(?:[a-z0-9]+)(?:-[a-z0-9]+)*$/, @post.slug
+    assert_match(/^(?:[a-z0-9]+)(?:-[a-z0-9]+)*$/, @post.slug)
   end
 
   # The filename should have the following format:
   # 2011-10-15-this-is-the-title.markdown
   def test_filename_should_have_the_right_format
-    assert_match /^[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9]+(?:-[a-z0-9]+)*\.[a-z0-9]{2,8}$/, @post.filename
+    assert_match(/^[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9]+(?:-[a-z0-9]+)*\.[a-z0-9]{2,8}$/, @post.filename)
   end
 
   def test_post_should_have_a_valid_yaml_front_matter
