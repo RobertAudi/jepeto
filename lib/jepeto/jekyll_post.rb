@@ -30,16 +30,11 @@ module Jepeto
       end
     end
 
-    def slug
-      (@slug.nil?) ? generate_slug : @slug
-    end
-
-    def filename
-      (@filename.nil?) ? generate_filename : @filename
-    end
-
-    def yaml_front_matter
-      (@yaml_front_matter.nil?) ? generate_yaml_front_matter : @yaml_front_matter
+    # Automagically create custom accessor methods for the other attributes
+    %w[slug filename yaml_front_matter].each do |attribute|
+      define_method(attribute) do
+        send "generate_#{attribute}" unless instance_variable_defined?("@#{attribute}")
+      end
     end
 
     private
@@ -85,7 +80,7 @@ module Jepeto
     end
 
     def generate_slug
-      title.downcase.strip.gsub(/[ _\.-]+/, '-')
+      @slug = title.downcase.strip.gsub(/[ _\.-]+/, '-')
     end
 
     def generate_filename
