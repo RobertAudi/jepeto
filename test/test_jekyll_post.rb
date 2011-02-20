@@ -83,13 +83,16 @@ class TestJekyllPost < MiniTest::Unit::TestCase
     assert_raises(RuntimeError, "Unable to find the posts directory") { Jepeto::JekyllPost.new(@options.merge(debug: false)) }
   end
 
-
   def test_there_is_a_debug_option
     assert_includes @post.options, :debug
   end
 
   def test_there_is_a_way_to_test_if_debug_mode_is_on
     assert Jepeto::JekyllPost.private_method_defined?(:debug?), "The debug? private method should be defined"
+  end
+
+  def test_raise_an_exception_if_file_with_the_same_name_already_exists
+    flunk "You need to write that test"
   end
 
   private

@@ -24,6 +24,7 @@ module Jepeto
     attr_reader :options
 
     def initialize(options)
+      define_instance_variables!
       @options = check_options(options)
     end
 
@@ -37,11 +38,17 @@ module Jepeto
     # Automagically create custom accessor methods for the other attributes
     %w[slug filename yaml_front_matter].each do |attribute|
       define_method(attribute) do
-        send "generate_#{attribute}" unless instance_variable_defined?("@#{attribute}")
+        send "generate_#{attribute}" if instance_variable_get("@#{attribute}").nil?
       end
     end
 
     private
+
+    def define_instance_variables!
+      %w[slug filename yaml_front_matter location].each do |attribute|
+        instance_variable_set("@#{attribute}", nil)
+      end
+    end
 
     def check_options(options)
       # If the user defined default values via the DEFAULT_OPTIONS constant
@@ -63,20 +70,13 @@ module Jepeto
         raise ArgumentError, "The post file can't be created without a fucking title!!!"
       end
 
-      unless options[:debug]
-        # The posts file can't be created if the posts directory isn't found
-        raise "Unable to find the posts directory" unless location_found?(options[:location])
-      end
+      set_location!(options[:location], options[:debug])
 
       options
     end
 
     def debug?
       @options[:debug]
-    end
-
-    def location_found?(location)
-      File.directory?(File.join(location, Jepeto::POST_DIRECTORY))
     end
 
     def merge_options(options, default_options)
@@ -87,6 +87,33 @@ module Jepeto
       end
 
       options
+    end
+
+    def set_location!(location, debug = false)
+      # location of the _posts folder not locaation of the post file!!
+      location ||= get_default_location
+
+      # Remove the trailling slash if they're there
+      location.chomp!('/')
+
+      if (location[-5] == Jepeto::POST_DIRECTORY && File.directory?(location))
+        location.chomp!(Jepeto::POST_DIRECTORY)
+      else
+        raise "Unable to find the posts directory" unless (debug || File.directory?(location.chomp('/') + '/' + Jepeto::POST_DIRECTORY))
+      end
+
+      # Make sure there isn't a trailling slash
+      @location ||= location.chomp('/')
+    end
+
+    def get_default_location
+      if Jepeto.const_defined?(:DEFAULT_OPTIONS) && !Jepeto::DEFAULT_OPTIONS[:location].nil?
+        location = Jepeto::DEFAULT_OPTIONS[:location]
+      else
+        location = Jepeto::HARDCODED_DEFAULT_OPTIONS[:location]
+      end
+
+      File.join(location, Jepeto::POST_DIRECTORY)
     end
 
     def check_extension(extension)
@@ -110,6 +137,7 @@ module Jepeto
       @yaml_front_matter['title']     = title
       @yaml_front_matter['published'] = published
       @yaml_front_matter = @yaml_front_matter.to_yaml
+      @yaml_front_matter << "---\n"
     end
 
   end
