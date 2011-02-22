@@ -1,3 +1,5 @@
+require_relative 'helpers/jekyll_post_helper'
+
 module Jepeto
 
   # Don't edit this constant hash!
@@ -21,6 +23,8 @@ module Jepeto
   POST_DIRECTORY = "_posts"
 
   class JekyllPost
+    include Jepeto::JekyllPostHelper
+    
     attr_reader :options
 
     def initialize(options)
@@ -124,7 +128,7 @@ module Jepeto
     end
 
     def generate_slug
-      @slug = title.downcase.strip.gsub(/[ _\.-]+/, '-')
+      @slug = slugify(title)
     end
 
     def generate_filename
