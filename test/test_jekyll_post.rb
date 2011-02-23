@@ -1,10 +1,12 @@
 require_relative "helper"
+require_relative '../lib/jepeto/helpers/jekyll_post_helper'
 require "date"
 require 'yaml'
 require 'fileutils'
 
 # TODO: Write a test to check that the layout used as default actually exists
 class TestJekyllPost < MiniTest::Unit::TestCase
+  include Jepeto::JekyllPostHelper
 
   def setup
     @options_list = options_list
@@ -92,7 +94,14 @@ class TestJekyllPost < MiniTest::Unit::TestCase
   end
 
   def test_raise_an_exception_if_file_with_the_same_name_already_exists
-    flunk "You need to write that test"
+    Dir.chdir('/tmp')
+    FileUtils.rm_rf(Jepeto::POST_DIRECTORY) if File.directory?(Jepeto::POST_DIRECTORY)
+    Dir.mkdir(Jepeto::POST_DIRECTORY)
+    File.new(slugify(default_options.fetch(:title)), 'w')
+
+
+    # ap Dir.getwd
+    assert_raises(RuntimeError) { Jepeto::JekyllPost.new(@options).save! }
   end
 
   private
@@ -104,7 +113,7 @@ class TestJekyllPost < MiniTest::Unit::TestCase
       extension:  'markdown',
       published:  false,
       date:       Date.today.to_s,
-      location:   '.',
+      location:   Dir.getwd,
       debug:      true
     }
   end

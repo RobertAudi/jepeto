@@ -46,6 +46,12 @@ module Jepeto
       end
     end
 
+    def save! 
+
+      raise "A post file with the same name already exists" if File.exists?(filename)
+
+    end
+
     private
 
     def define_instance_variables!
@@ -101,13 +107,17 @@ module Jepeto
       location.chomp!('/')
 
       if (location[-5] == Jepeto::POST_DIRECTORY && File.directory?(location))
+        # if the script was called from within the posts directory
+        # get out of it and rewrite the location path
+        Dir.chdir("..")
         location.chomp!(Jepeto::POST_DIRECTORY)
       else
         raise "Unable to find the posts directory" unless (debug || File.directory?(location.chomp('/') + '/' + Jepeto::POST_DIRECTORY))
       end
 
       # Make sure there isn't a trailling slash
-      @location ||= location.chomp('/')
+      # and return the full path
+      @location ||= File.expand_path(location.chomp('/'))
     end
 
     def get_default_location
