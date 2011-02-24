@@ -9,8 +9,7 @@ include Jepeto
 gem 'minitest'
 
 require "minitest/unit"
-require "minitest/pride" # Colors!!
-require "redgreen"       # More Colors!!
+require "redgreen"
 
 # Note to self: Instead of the line below,
 # I could justr equire 'minitest/autorun'
