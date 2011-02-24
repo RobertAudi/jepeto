@@ -3,5 +3,4 @@ pkg/*
 .bundle
 Gemfile.lock
 NOTES.markdown
-.rvmrc
 .pomo
