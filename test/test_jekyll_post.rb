@@ -93,15 +93,85 @@ class TestJekyllPost < MiniTest::Unit::TestCase
     assert Jepeto::JekyllPost.private_method_defined?(:debug?), "The debug? private method should be defined"
   end
 
+  def test_get_out_of_posts_dir
+    Dir.chdir('/tmp')
+
+    # Start fresh
+    FileUtils.rm_rf(Jepeto::POST_DIRECTORY) if File.directory?(Jepeto::POST_DIRECTORY)
+    Dir.mkdir(Jepeto::POST_DIRECTORY)
+    Dir.chdir(Jepeto::POST_DIRECTORY)
+
+    post = Jepeto::JekyllPost.new(@options.merge(location: File.join('/tmp', Jepeto::POST_DIRECTORY)))
+    post.save!
+
+    assert_equal false, Dir.getwd.include?(Jepeto::POST_DIRECTORY), "You shouldn't be in the posts directory"
+  end
+
   def test_raise_an_exception_if_file_with_the_same_name_already_exists
     Dir.chdir('/tmp')
     FileUtils.rm_rf(Jepeto::POST_DIRECTORY) if File.directory?(Jepeto::POST_DIRECTORY)
     Dir.mkdir(Jepeto::POST_DIRECTORY)
-    File.new(slugify(default_options.fetch(:title)), 'w')
 
+    file = File.join(Jepeto::POST_DIRECTORY, "#{default_options.fetch(:date)}-#{slugify(default_options.fetch(:title))}.#{default_options.fetch(:extension)}")
+    File.new(file, 'w')
 
-    # ap Dir.getwd
     assert_raises(RuntimeError) { Jepeto::JekyllPost.new(@options).save! }
+  end
+
+  def test_make_sure_post_dir_is_writable
+    Dir.chdir('/tmp')
+    FileUtils.rm_rf(Jepeto::POST_DIRECTORY) if File.directory?(Jepeto::POST_DIRECTORY)
+    Dir.mkdir(Jepeto::POST_DIRECTORY, 0522)
+
+    assert_raises(RuntimeError) { Jepeto::JekyllPost.new(@options).save! }
+  end
+
+  def test_create_post_file
+    Dir.chdir('/tmp')
+    FileUtils.rm_rf(Jepeto::POST_DIRECTORY) if File.directory?(Jepeto::POST_DIRECTORY)
+    Dir.mkdir(Jepeto::POST_DIRECTORY)
+
+    file = File.join(Jepeto::POST_DIRECTORY, "#{default_options.fetch(:date)}-#{slugify(default_options.fetch(:title))}.#{default_options.fetch(:extension)}")
+    post = Jepeto::JekyllPost.new(@options).save!
+
+    assert File.exists?(file), "No post file was created"
+  end
+
+  def test_yaml_front_matter_should_be_written_to_the_file
+    Dir.chdir('/tmp')
+    FileUtils.rm_rf(Jepeto::POST_DIRECTORY) if File.directory?(Jepeto::POST_DIRECTORY)
+    Dir.mkdir(Jepeto::POST_DIRECTORY)
+
+    file = File.join(Jepeto::POST_DIRECTORY, "#{default_options.fetch(:date)}-#{slugify(default_options.fetch(:title))}.#{default_options.fetch(:extension)}")
+    post = Jepeto::JekyllPost.new(@options)
+    post.save!
+
+    yfm = ""
+    File.open(file) do |file|
+      while line = file.gets
+        yfm << line
+        yfm << "\n"
+      end
+    end
+
+    refute yfm.empty?, "YAML Front Matter should be added to the post file"
+
+    # a valid YAML Front Matter contains at least a layout and a title
+    converted_yaml = YAML.load(yfm)
+    assert converted_yaml.include?("title")
+    assert converted_yaml.include?("layout")
+  end
+
+  def test_save_method_should_return_full_path_to_post_file
+    Dir.chdir('/tmp')
+    FileUtils.rm_rf(Jepeto::POST_DIRECTORY) if File.directory?(Jepeto::POST_DIRECTORY)
+    Dir.mkdir(Jepeto::POST_DIRECTORY)
+
+    file = File.join(Jepeto::POST_DIRECTORY, "#{default_options.fetch(:date)}-#{slugify(default_options.fetch(:title))}.#{default_options.fetch(:extension)}")
+    post = Jepeto::JekyllPost.new(@options)
+    full_path = post.save!
+
+    assert_equal File.expand_path(file), full_path
   end
 
   private

@@ -46,10 +46,19 @@ module Jepeto
       end
     end
 
-    def save! 
+    def save!
 
-      raise "A post file with the same name already exists" if File.exists?(filename)
+      Dir.chdir('..') if Dir.getwd.include?(Jepeto::POST_DIRECTORY)
+      post_file = File.join(Jepeto::POST_DIRECTORY, self.filename)
 
+      raise "The post directory is not wriatble" unless File.writable?(Jepeto::POST_DIRECTORY)
+      raise "A post file with the same name already exists" if File.exists?(post_file)
+
+      File.open(post_file, 'w') do |file|
+        file.puts yaml_front_matter
+      end
+
+      File.expand_path(post_file)
     end
 
     private
@@ -108,8 +117,6 @@ module Jepeto
 
       if (location[-5] == Jepeto::POST_DIRECTORY && File.directory?(location))
         # if the script was called from within the posts directory
-        # get out of it and rewrite the location path
-        Dir.chdir("..")
         location.chomp!(Jepeto::POST_DIRECTORY)
       else
         raise "Unable to find the posts directory" unless (debug || File.directory?(location.chomp('/') + '/' + Jepeto::POST_DIRECTORY))
