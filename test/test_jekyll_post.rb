@@ -10,10 +10,10 @@ class TestJekyllPost < MiniTest::Unit::TestCase
 
   def setup
     @options_list = options_list
+    @temp_dir = '/tmp'
     @options = default_options
     @post = Jepeto::JekyllPost.new(@options)
     @required_constants = %w[HARDCODED_DEFAULT_OPTIONS VALID_FILE_EXTENSIONS POST_DIRECTORY]
-    @temp_dir = '/tmp'
   end
 
   def test_options_should_be_retrievable
