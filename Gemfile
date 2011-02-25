@@ -11,8 +11,6 @@ group :development do
       fail "Bundler version #{min_bundler_version} or greater required.  Please run 'gem update bundler'."
     end 
   end.call
-
-  gem 'awesome_print', '0.3.2'
 end
 
 group :test do
