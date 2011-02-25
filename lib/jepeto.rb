@@ -4,8 +4,7 @@ require "yaml"
 require "optparse"
 
 # Debug Shite
-# Note: if in development environment, this might be the source of problems...
-require "ap"
+require "pp"
 
 # Personal requirements
 require_relative "./jepeto/jekyll_post"
