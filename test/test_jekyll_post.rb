@@ -13,6 +13,7 @@ class TestJekyllPost < MiniTest::Unit::TestCase
     @options = default_options
     @post = Jepeto::JekyllPost.new(@options)
     @required_constants = %w[HARDCODED_DEFAULT_OPTIONS VALID_FILE_EXTENSIONS POST_DIRECTORY]
+    @temp_dir = '/tmp'
   end
 
   def test_options_should_be_retrievable
@@ -91,8 +92,8 @@ class TestJekyllPost < MiniTest::Unit::TestCase
 
   def test_fail_if_posts_folder_not_found_and_no_location_option_was_passed
     # Make sure to go in a dir with no posts dir
-    FileUtils.rm_rf(File.join('/tmp', Jepeto::POST_DIRECTORY)) if File.directory?("/tmp/#{Jepeto::POST_DIRECTORY}")
-    Dir.chdir('/tmp')
+    FileUtils.rm_rf(File.join(@temp_dir, Jepeto::POST_DIRECTORY)) if File.directory?(@temp_dir + '/' + Jepeto::POST_DIRECTORY)
+    Dir.chdir(@temp_dir)
     assert_raises(RuntimeError, "Unable to find the posts directory") { Jepeto::JekyllPost.new(@options.merge(debug: false)) }
   end
 
@@ -105,21 +106,21 @@ class TestJekyllPost < MiniTest::Unit::TestCase
   end
 
   def test_get_out_of_posts_dir
-    Dir.chdir('/tmp')
+    Dir.chdir(@temp_dir)
 
     # Start fresh
     FileUtils.rm_rf(Jepeto::POST_DIRECTORY) if File.directory?(Jepeto::POST_DIRECTORY)
     Dir.mkdir(Jepeto::POST_DIRECTORY)
     Dir.chdir(Jepeto::POST_DIRECTORY)
 
-    post = Jepeto::JekyllPost.new(@options.merge(location: File.join('/tmp', Jepeto::POST_DIRECTORY)))
+    post = Jepeto::JekyllPost.new(@options.merge(location: File.join(@temp_dir, Jepeto::POST_DIRECTORY)))
     post.save!
 
     assert_equal false, Dir.getwd.include?(Jepeto::POST_DIRECTORY), "You shouldn't be in the posts directory"
   end
 
   def test_raise_an_exception_if_file_with_the_same_name_already_exists
-    Dir.chdir('/tmp')
+    Dir.chdir(@temp_dir)
     FileUtils.rm_rf(Jepeto::POST_DIRECTORY) if File.directory?(Jepeto::POST_DIRECTORY)
     Dir.mkdir(Jepeto::POST_DIRECTORY)
 
@@ -130,7 +131,7 @@ class TestJekyllPost < MiniTest::Unit::TestCase
   end
 
   def test_make_sure_post_dir_is_writable
-    Dir.chdir('/tmp')
+    Dir.chdir(@temp_dir)
     FileUtils.rm_rf(Jepeto::POST_DIRECTORY) if File.directory?(Jepeto::POST_DIRECTORY)
     Dir.mkdir(Jepeto::POST_DIRECTORY, 0522)
 
@@ -138,7 +139,7 @@ class TestJekyllPost < MiniTest::Unit::TestCase
   end
 
   def test_create_post_file
-    Dir.chdir('/tmp')
+    Dir.chdir(@temp_dir)
     FileUtils.rm_rf(Jepeto::POST_DIRECTORY) if File.directory?(Jepeto::POST_DIRECTORY)
     Dir.mkdir(Jepeto::POST_DIRECTORY)
 
@@ -149,7 +150,7 @@ class TestJekyllPost < MiniTest::Unit::TestCase
   end
 
   def test_yaml_front_matter_should_be_written_to_the_file
-    Dir.chdir('/tmp')
+    Dir.chdir(@temp_dir)
     FileUtils.rm_rf(Jepeto::POST_DIRECTORY) if File.directory?(Jepeto::POST_DIRECTORY)
     Dir.mkdir(Jepeto::POST_DIRECTORY)
 
@@ -174,7 +175,7 @@ class TestJekyllPost < MiniTest::Unit::TestCase
   end
 
   def test_save_method_should_return_full_path_to_post_file
-    Dir.chdir('/tmp')
+    Dir.chdir(@temp_dir)
     FileUtils.rm_rf(Jepeto::POST_DIRECTORY) if File.directory?(Jepeto::POST_DIRECTORY)
     Dir.mkdir(Jepeto::POST_DIRECTORY)
 
