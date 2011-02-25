@@ -163,7 +163,7 @@ module Jepeto
     end
 
     def generate_slug
-      @slug = slugify(title)
+      @slug = slugalize(title)
     end
 
     def generate_filename

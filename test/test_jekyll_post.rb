@@ -124,7 +124,7 @@ class TestJekyllPost < MiniTest::Unit::TestCase
     FileUtils.rm_rf(Jepeto::POST_DIRECTORY) if File.directory?(Jepeto::POST_DIRECTORY)
     Dir.mkdir(Jepeto::POST_DIRECTORY)
 
-    file = File.join(Jepeto::POST_DIRECTORY, "#{default_options.fetch(:date)}-#{slugify(default_options.fetch(:title))}.#{default_options.fetch(:extension)}")
+    file = File.join(Jepeto::POST_DIRECTORY, "#{default_options.fetch(:date)}-#{slugalize(default_options.fetch(:title))}.#{default_options.fetch(:extension)}")
     File.new(file, 'w')
 
     assert_raises(RuntimeError) { Jepeto::JekyllPost.new(@options).save! }
@@ -143,7 +143,7 @@ class TestJekyllPost < MiniTest::Unit::TestCase
     FileUtils.rm_rf(Jepeto::POST_DIRECTORY) if File.directory?(Jepeto::POST_DIRECTORY)
     Dir.mkdir(Jepeto::POST_DIRECTORY)
 
-    file = File.join(Jepeto::POST_DIRECTORY, "#{default_options.fetch(:date)}-#{slugify(default_options.fetch(:title))}.#{default_options.fetch(:extension)}")
+    file = File.join(Jepeto::POST_DIRECTORY, "#{default_options.fetch(:date)}-#{slugalize(default_options.fetch(:title))}.#{default_options.fetch(:extension)}")
     post = Jepeto::JekyllPost.new(@options).save!
 
     assert File.exists?(file), "No post file was created"
@@ -154,7 +154,7 @@ class TestJekyllPost < MiniTest::Unit::TestCase
     FileUtils.rm_rf(Jepeto::POST_DIRECTORY) if File.directory?(Jepeto::POST_DIRECTORY)
     Dir.mkdir(Jepeto::POST_DIRECTORY)
 
-    file = File.join(Jepeto::POST_DIRECTORY, "#{default_options.fetch(:date)}-#{slugify(default_options.fetch(:title))}.#{default_options.fetch(:extension)}")
+    file = File.join(Jepeto::POST_DIRECTORY, "#{default_options.fetch(:date)}-#{slugalize(default_options.fetch(:title))}.#{default_options.fetch(:extension)}")
     post = Jepeto::JekyllPost.new(@options)
     post.save!
 
@@ -179,7 +179,7 @@ class TestJekyllPost < MiniTest::Unit::TestCase
     FileUtils.rm_rf(Jepeto::POST_DIRECTORY) if File.directory?(Jepeto::POST_DIRECTORY)
     Dir.mkdir(Jepeto::POST_DIRECTORY)
 
-    file = File.join(Jepeto::POST_DIRECTORY, "#{default_options.fetch(:date)}-#{slugify(default_options.fetch(:title))}.#{default_options.fetch(:extension)}")
+    file = File.join(Jepeto::POST_DIRECTORY, "#{default_options.fetch(:date)}-#{slugalize(default_options.fetch(:title))}.#{default_options.fetch(:extension)}")
     post = Jepeto::JekyllPost.new(@options)
     full_path = post.save!
 
