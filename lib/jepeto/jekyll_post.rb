@@ -51,8 +51,15 @@ module Jepeto
       Dir.chdir('..') if Dir.getwd.include?(Jepeto::POST_DIRECTORY)
       post_file = File.join(Jepeto::POST_DIRECTORY, self.filename)
 
-      raise "The post directory is not wriatble" unless File.writable?(Jepeto::POST_DIRECTORY)
-      raise "A post file with the same name already exists" if File.exists?(post_file)
+      unless File.writable?(Jepeto::POST_DIRECTORY)
+        raise "The post directory is not wriatble"
+        exit
+      end
+
+      if File.exists?(post_file)
+        raise "A post file with the same name already exists"
+        exit
+      end
 
       File.open(post_file, 'w') do |file|
         file.puts yaml_front_matter
@@ -72,8 +79,19 @@ module Jepeto
     def check_options(options)
       # If the user defined default values via the DEFAULT_OPTIONS constant
       # replace all the nil values with default values.
-      if Jepeto.const_defined?(:DEFAULT_OPTIONS)
-        options = merge_options(options, Jepeto::DEFAULT_OPTIONS)
+
+      jprc_options = ""
+      config_file = File.expand_path("~/.jprc")
+      if File.exists?(config_file)
+        File.open(config_file, 'r') do |file|
+          while line = file.gets
+            jprc_options << line
+          end
+        end
+         jprc_options = YAML.load(jprc_options)
+         jprc_options = jprc_options.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
+
+         options = merge_options(options, jprc_options)
       end
 
       # If there are still some nil values, replace them with default values from

@@ -33,10 +33,12 @@ class TestJekyllPost < MiniTest::Unit::TestCase
     @options_list.each do |option|
       # It is necessary to add a default title so that an ArgumentError is not raised
       post = Jepeto::JekyllPost.new(@options.merge(option.to_sym => nil, title: "The Title"))
-      if Jepeto.const_defined?(:DEFAULT_OPTIONS) && Jepeto::DEFAULT_OPTIONS[option.to_sym].nil?
-        assert_equal Jepeto::HARDCODED_DEFAULT_OPTIONS[option.to_sym], post.options[option.to_sym]
+      options = get_options_from_jprc
+
+      if !options.empty? && !options[option.to_sym].nil?
+        assert_equal options[option.to_sym], post.options[option.to_sym]
       else
-        assert_equal Jepeto::DEFAULT_OPTIONS[option.to_sym], post.options[option.to_sym]
+        assert_equal Jepeto::HARDCODED_DEFAULT_OPTIONS[option.to_sym], post.options[option.to_sym]
       end
     end
   end
@@ -46,7 +48,16 @@ class TestJekyllPost < MiniTest::Unit::TestCase
   # On the other hand, the date and the extension can be given default values
   # (the current date and "markdown" respectively)
   def test_title_is_mandatory
-    assert_raises(ArgumentError) { Jepeto::JekyllPost.new(@options.merge(title: nil)) }
+    config_file = File.expand_path("~/.jprc")
+
+    if File.exists?(config_file)
+      options = get_options_from_jprc
+      if options[:title].nil? || options[:title].empty?
+        assert_raises(ArgumentError) { Jepeto::JekyllPost.new(@options.merge(title: nil)) }
+      end
+    else
+      assert_raises(ArgumentError) { Jepeto::JekyllPost.new(@options.merge(title: nil)) }
+    end
   end
 
   # The date should have the following format:
@@ -190,5 +201,22 @@ class TestJekyllPost < MiniTest::Unit::TestCase
 
   def options_list
     %w[date extension published layout]
+  end
+
+  def get_options_from_jprc
+    options = ""
+
+    config_file = File.expand_path("~/.jprc")
+    if File.exists?(config_file)
+      File.open(config_file, 'r') do |file|
+        while line = file.gets
+          options << line
+        end
+      end
+      options = YAML.load(options)
+      options = options.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
+    end
+
+    options
   end
 end
