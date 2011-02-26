@@ -9,9 +9,7 @@ module Jepeto
     date:      Date.today.to_s,
     extension: 'markdown',
     published: false,
-    layout:    'default',
-    location:  '.',
-    debug:     false
+    layout:    'default'
   }
 
   # This array should contain all the file extensions supported by jekyll
@@ -51,8 +49,15 @@ module Jepeto
       Dir.chdir('..') if Dir.getwd.include?(Jepeto::POST_DIRECTORY)
       post_file = File.join(Jepeto::POST_DIRECTORY, self.filename)
 
-      raise "The post directory is not wriatble" unless File.writable?(Jepeto::POST_DIRECTORY)
-      raise "A post file with the same name already exists" if File.exists?(post_file)
+      unless File.writable?(Jepeto::POST_DIRECTORY)
+        raise "The post directory is not wriatble"
+        exit
+      end
+
+      if File.exists?(post_file)
+        raise NameError, "A post file with the same name already exists"
+        exit
+      end
 
       File.open(post_file, 'w') do |file|
         file.puts yaml_front_matter
@@ -64,7 +69,7 @@ module Jepeto
     private
 
     def define_instance_variables!
-      %w[slug filename yaml_front_matter location].each do |attribute|
+      %w[slug filename yaml_front_matter].each do |attribute|
         instance_variable_set("@#{attribute}", nil)
       end
     end
@@ -72,8 +77,19 @@ module Jepeto
     def check_options(options)
       # If the user defined default values via the DEFAULT_OPTIONS constant
       # replace all the nil values with default values.
-      if Jepeto.const_defined?(:DEFAULT_OPTIONS)
-        options = merge_options(options, Jepeto::DEFAULT_OPTIONS)
+
+      jprc_options = ""
+      config_file = File.expand_path("~/.jprc")
+      if File.exists?(config_file)
+        File.open(config_file, 'r') do |file|
+          while line = file.gets
+            jprc_options << line
+          end
+        end
+         jprc_options = YAML.load(jprc_options)
+         jprc_options = jprc_options.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
+
+         options = merge_options(options, jprc_options)
       end
 
       # If there are still some nil values, replace them with default values from
@@ -86,16 +102,10 @@ module Jepeto
       # be nil or empty is the title.
       # That is unacceptable!!
       if options[:title].nil? || options[:title].empty?
-        raise ArgumentError, "The post file can't be created without a fucking title!!!"
+        raise ArgumentError, "The post file can't be created without a title!!!"
       end
 
-      set_location!(options[:location], options[:debug])
-
       options
-    end
-
-    def debug?
-      @options[:debug]
     end
 
     def merge_options(options, default_options)
@@ -108,35 +118,6 @@ module Jepeto
       options
     end
 
-    def set_location!(location, debug = false)
-      # location of the _posts folder not locaation of the post file!!
-      location ||= get_default_location
-
-      # Remove the trailling slash if they're there
-      location.chomp!('/')
-
-      if (location[-5] == Jepeto::POST_DIRECTORY && File.directory?(location))
-        # if the script was called from within the posts directory
-        location.chomp!(Jepeto::POST_DIRECTORY)
-      else
-        raise "Unable to find the posts directory" unless (debug || File.directory?(location.chomp('/') + '/' + Jepeto::POST_DIRECTORY))
-      end
-
-      # Make sure there isn't a trailling slash
-      # and return the full path
-      @location ||= File.expand_path(location.chomp('/'))
-    end
-
-    def get_default_location
-      if Jepeto.const_defined?(:DEFAULT_OPTIONS) && !Jepeto::DEFAULT_OPTIONS[:location].nil?
-        location = Jepeto::DEFAULT_OPTIONS[:location]
-      else
-        location = Jepeto::HARDCODED_DEFAULT_OPTIONS[:location]
-      end
-
-      File.join(location, Jepeto::POST_DIRECTORY)
-    end
-
     def check_extension(extension)
       extension.slice!(0) if extension[0] == '.'
       raise "#{extension} is not a valid extension." unless VALID_FILE_EXTENSIONS.include?(extension)
@@ -145,7 +126,7 @@ module Jepeto
     end
 
     def generate_slug
-      @slug = slugify(title)
+      @slug = slugalize(title)
     end
 
     def generate_filename

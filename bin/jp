@@ -1,0 +1,51 @@
+#!/usr/bin/env ruby
+
+require_relative "../lib/jepeto"
+include Jepeto
+
+unless Dir.exists?(Jepeto::POST_DIRECTORY)
+  if Dir.getwd.chomp("/").rpartition("/").last == Jepeto::POST_DIRECTORY
+    Dir.chdir("..")
+  end
+end
+
+# -Option-Parsing---------------------------------------------------------------
+title = ""
+ARGV.each do |arg|
+  unless arg.match(/^-{1,2}[a-zA-Z][a-z]*/)
+    title << " "
+    title << arg
+  end
+end
+
+options = OptionsParser.parse!(title)
+
+# Jepete REALLY needs a title
+if options.empty?
+  if ARGV.empty?
+    puts "Please enter a title"
+    title = $stdin.gets.chomp
+    options[:title] = title unless title.empty?
+  else
+    options[:title] = ARGV.join(" ")
+  end
+end
+# ------------------------------------------------------------------------------
+
+begin
+  post = Jepeto::JekyllPost.new(options)
+  file = post.save!
+rescue ArgumentError => error
+  puts error.message
+  exit
+rescue RuntimeError => error
+  puts error.message
+  exit
+rescue NameError => error
+  puts error.message
+end
+
+unless file.nil?
+  puts "Post successfully created! Full path: \n"
+  puts file
+end
