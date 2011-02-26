@@ -5,3 +5,4 @@ Gemfile.lock
 NOTES.markdown
 .rvmrc
 .pomo
+_posts/*
