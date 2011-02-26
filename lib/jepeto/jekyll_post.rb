@@ -103,7 +103,7 @@ module Jepeto
       # be nil or empty is the title.
       # That is unacceptable!!
       if options[:title].nil? || options[:title].empty?
-        raise ArgumentError, "The post file can't be created without a fucking title!!!"
+        raise ArgumentError, "The post file can't be created without a title!!!"
       end
 
       set_location!(options[:location])
