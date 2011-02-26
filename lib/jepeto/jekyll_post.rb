@@ -9,8 +9,7 @@ module Jepeto
     date:      Date.today.to_s,
     extension: 'markdown',
     published: false,
-    layout:    'default',
-    location:  '.'
+    layout:    'default'
   }
 
   # This array should contain all the file extensions supported by jekyll
@@ -56,7 +55,7 @@ module Jepeto
       end
 
       if File.exists?(post_file)
-        raise "A post file with the same name already exists"
+        raise NameError, "A post file with the same name already exists"
         exit
       end
 
@@ -70,7 +69,7 @@ module Jepeto
     private
 
     def define_instance_variables!
-      %w[slug filename yaml_front_matter location].each do |attribute|
+      %w[slug filename yaml_front_matter].each do |attribute|
         instance_variable_set("@#{attribute}", nil)
       end
     end
@@ -106,8 +105,6 @@ module Jepeto
         raise ArgumentError, "The post file can't be created without a title!!!"
       end
 
-      set_location!(options[:location])
-
       options
     end
 
@@ -119,35 +116,6 @@ module Jepeto
       end
 
       options
-    end
-
-    def set_location!(location)
-      # location of the _posts folder not locaation of the post file!!
-      location ||= get_default_location
-
-      # Remove the trailling slash if they're there
-      location.chomp!('/')
-
-      if (location[-5] == Jepeto::POST_DIRECTORY && File.directory?(location))
-        # if the script was called from within the posts directory
-        location.chomp!(Jepeto::POST_DIRECTORY)
-      else
-        raise "Unable to find the posts directory" unless ( File.directory?(location.chomp('/') + '/' + Jepeto::POST_DIRECTORY))
-      end
-
-      # Make sure there isn't a trailling slash
-      # and return the full path
-      @location ||= File.expand_path(location.chomp('/'))
-    end
-
-    def get_default_location
-      if Jepeto.const_defined?(:DEFAULT_OPTIONS) && !Jepeto::DEFAULT_OPTIONS[:location].nil?
-        location = Jepeto::DEFAULT_OPTIONS[:location]
-      else
-        location = Jepeto::HARDCODED_DEFAULT_OPTIONS[:location]
-      end
-
-      File.join(location, Jepeto::POST_DIRECTORY)
     end
 
     def check_extension(extension)
