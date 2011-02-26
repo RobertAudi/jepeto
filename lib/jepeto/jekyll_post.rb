@@ -10,8 +10,7 @@ module Jepeto
     extension: 'markdown',
     published: false,
     layout:    'default',
-    location:  '.',
-    debug:     false
+    location:  '.'
   }
 
   # This array should contain all the file extensions supported by jekyll
@@ -107,13 +106,9 @@ module Jepeto
         raise ArgumentError, "The post file can't be created without a fucking title!!!"
       end
 
-      set_location!(options[:location], options[:debug])
+      set_location!(options[:location])
 
       options
-    end
-
-    def debug?
-      @options[:debug]
     end
 
     def merge_options(options, default_options)
@@ -126,7 +121,7 @@ module Jepeto
       options
     end
 
-    def set_location!(location, debug = false)
+    def set_location!(location)
       # location of the _posts folder not locaation of the post file!!
       location ||= get_default_location
 
@@ -137,7 +132,7 @@ module Jepeto
         # if the script was called from within the posts directory
         location.chomp!(Jepeto::POST_DIRECTORY)
       else
-        raise "Unable to find the posts directory" unless (debug || File.directory?(location.chomp('/') + '/' + Jepeto::POST_DIRECTORY))
+        raise "Unable to find the posts directory" unless ( File.directory?(location.chomp('/') + '/' + Jepeto::POST_DIRECTORY))
       end
 
       # Make sure there isn't a trailling slash
