@@ -6,6 +6,9 @@ include Jepeto
 unless Dir.exists?(Jepeto::POST_DIRECTORY)
   if Dir.getwd.chomp("/").rpartition("/").last == Jepeto::POST_DIRECTORY
     Dir.chdir("..")
+  else
+    $stderr.puts "ERROR: Unable to find the posts directory"
+    exit
   end
 end
 
@@ -36,13 +39,13 @@ begin
   post = Jepeto::JekyllPost.new(options)
   file = post.save!
 rescue ArgumentError => error
-  puts error.message
+  puts "ERROR: " + error.message
   exit
 rescue RuntimeError => error
-  puts error.message
+  puts "ERROR: " + error.message
   exit
 rescue NameError => error
-  puts error.message
+  puts "ERROR: " + error.message
 end
 
 unless file.nil?
