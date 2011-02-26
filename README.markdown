@@ -1,16 +1,20 @@
-Jepeto: Jekyll Post Editor
-==========================
+Jekyll Post Generator
+=====================
 
-Jepeto is a gem that is used to generate Jekyll post files with the
+This is a gem that is used to generate Jekyll post files with the
 appropriate name and YAML Front Matter.
 
-Roadmap
--------
+Usage
+-----
 
-- Edit a post file and the YAML Front Matter simultaneously or
-  individually using Jepeto.
-- When run without any args, give the choice (via a config file, maybe?)
-  to generate a post file with a default name and YAML Front Matter.
+You need to be in the same directory as the `_posts` directory, or in
+the `_posts` directory itself to be able to use the generator. A `jp`
+script is provided with the gem. When used without args, it will prompt
+the user for a title.
+
+Alternatively, you can either provide default options via a `.jprc` file
+in your home directory, or pass the options directly via the command
+line. For more info on that, type `jp --help`
 
 Compatibility
 -------------
