@@ -29,6 +29,11 @@ module Jepeto
 					options[:draft] = true
 				end
 
+				opt.on( "-v", "--version", "Show version number") do
+					puts "jekyll_post_generator version #{Jepeto::VERSION}"
+					exit
+				end
+        
 				opt.on( "-h", "--help", "Show this help message.") do
 					puts option_parser
 					exit

@@ -7,6 +7,7 @@ require "optparse"
 require "pp"
 
 # Personal requirements
+require_relative "./jepeto/version"
 require_relative "./jepeto/jekyll_post"
 require_relative "./jepeto/option_parser"
 
