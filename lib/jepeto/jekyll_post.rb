@@ -1,4 +1,4 @@
-require_relative 'helpers/jekyll_post_helper'
+require_relative 'helpers/application_helper'
 
 module Jepeto
 
@@ -21,8 +21,8 @@ module Jepeto
   POST_DIRECTORY = "_posts"
 
   class JekyllPost
-    include Jepeto::JekyllPostHelper
-    
+    include Jepeto::ApplicationHelper
+
     attr_reader :options
 
     def initialize(options)

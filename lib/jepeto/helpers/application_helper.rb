@@ -1,5 +1,5 @@
 module Jepeto
-  module JekyllPostHelper
+  module ApplicationHelper
     def slugalize(string)
       string.gsub!(/[^\x00-\x7F]+/, '')   # Remove non-ASCII (e.g. diacritics).
       string.gsub!(/[^a-z0-9\-_\+]+/i, '-') # Turn non-slug chars into the separator.
