@@ -22,7 +22,7 @@ module Jepeto
 
   class JekyllPost
     include Jepeto::JekyllPostHelper
-    
+
     attr_reader :options
 
     def initialize(options)
