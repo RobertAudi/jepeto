@@ -3,8 +3,8 @@
 require_relative "../lib/jepeto"
 include Jepeto
 
-unless Dir.exists?(Jepeto::POST_DIRECTORY)
-  if Dir.getwd.chomp("/").rpartition("/").last == Jepeto::POST_DIRECTORY
+unless Dir.exists?(Jepeto::JekyllPost::POST_DIRECTORY)
+  if Dir.getwd.chomp("/").rpartition("/").last == Jepeto::JekyllPost::POST_DIRECTORY
     Dir.chdir("..")
   else
     $stderr.puts "ERROR: Unable to find the posts directory"

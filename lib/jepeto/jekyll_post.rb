@@ -2,26 +2,26 @@ require_relative 'helpers/application_helper'
 
 module Jepeto
 
-  # Don't edit this constant hash!
-  # This can be overridden by the DEFAULT_OPTIONS hash
-  # or by options passed in by the user.
-  HARDCODED_DEFAULT_OPTIONS = {
-    date:      Date.today.to_s,
-    extension: 'markdown',
-    published: false,
-    layout:    'default'
-  }
-
-  # This array should contain all the file extensions supported by jekyll
-  VALID_FILE_EXTENSIONS = [
-    'markdown', 'mdown', 'md',
-    'textile'
-  ]
-
-  POST_DIRECTORY = "_posts"
-
   class JekyllPost
     include Jepeto::ApplicationHelper
+
+    # Don't edit this constant hash!
+    # This can be overridden by the DEFAULT_OPTIONS hash
+    # or by options passed in by the user.
+    HARDCODED_DEFAULT_OPTIONS = {
+      date:      Date.today.to_s,
+      extension: 'markdown',
+      published: false,
+      layout:    'default'
+    }
+
+    # This array should contain all the file extensions supported by jekyll
+    VALID_FILE_EXTENSIONS = [
+      'markdown', 'mdown', 'md',
+      'textile'
+    ]
+
+    POST_DIRECTORY = "_posts"
 
     attr_reader :options
 
@@ -46,10 +46,10 @@ module Jepeto
 
     def save!
 
-      Dir.chdir('..') if Dir.getwd.include?(Jepeto::POST_DIRECTORY)
-      post_file = File.join(Jepeto::POST_DIRECTORY, self.filename)
+      Dir.chdir('..') if Dir.getwd.include?(POST_DIRECTORY)
+      post_file = File.join(POST_DIRECTORY, self.filename)
 
-      unless File.writable?(Jepeto::POST_DIRECTORY)
+      unless File.writable?(POST_DIRECTORY)
         raise "The post directory is not wriatble"
         exit
       end
@@ -94,7 +94,7 @@ module Jepeto
 
       # If there are still some nil values, replace them with default values from
       # the HARDCODED_DEFAULT_OPTIONS constant.
-      options = merge_options(options, Jepeto::HARDCODED_DEFAULT_OPTIONS)
+      options = merge_options(options, HARDCODED_DEFAULT_OPTIONS)
 
       options[:extension] = check_extension(options[:extension])
 
