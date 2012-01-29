@@ -26,7 +26,7 @@ options = OptionsParser.parse!(title)
 # Jepete REALLY needs a title
 if options.empty?
   if ARGV.empty?
-    puts "Please enter a title"
+    puts "Please enter a title:"
     title = $stdin.gets.chomp
     options[:title] = title unless title.empty?
   else
