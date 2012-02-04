@@ -1,7 +1,71 @@
 #!/usr/bin/env ruby
 
+require "pp"
+
 require_relative "../lib/jepeto"
 include Jepeto
+
+# -Utility-functions------------------------------------------------------------
+def get_query
+  query = {}
+
+  # First get the query type from the user
+  print "Do you want to create a new post[1], a new page[2] or a new sitemap[3]? [1/2/3] "
+  answer = $stdin.gets.chomp
+
+  if answer == "1"
+    query[:type] = "post"
+  elsif answer == "2"
+    query[:type] = "page"
+  elsif answer == "3"
+    query[:type] = "sitemap"
+  else
+    # TODO: Make this text red
+    puts "\nJepeto doesn't understand what you want..."
+    exit
+  end
+
+  # Get the post title or the page name.
+  # Doesn't apply for sitemaps
+  if query[:type] == "post" || query[:type] == "page"
+    if query[:type] == "post"
+      query_type_label = "title"
+    elsif query[:type] == "page"
+      query_type_label = "name"
+    end
+
+    # Get the query id, which is the title of
+    # the post or the name of the page.
+    puts "Please enter a #{query_type_label} for the new #{query[:type]}:"
+    query[:id] = $stdin.gets.chomp
+
+    if query[:id].empty?
+      puts "You can't create a #{query[:type]} without a #{query_type_label}..."
+      exit
+    end
+  end
+
+  query
+end
+
+def get_query_id(query_type)
+  if query_type == "post"
+    query_type_label = "title"
+  elsif query_type == "page"
+    query_type_label = "name"
+  end
+
+  puts "Please enter a #{query_type} #{query_type_label}:\n"
+  id = $stdin.gets.chomp
+
+  if id.empty?
+    puts "The #{query_type} #{query_type_label} can't be blank"
+    exit
+  else
+    id
+  end
+end
+# ------------------------------------------------------------------------------
 
 # cd to the right directory
 unless Jepeto::posts_directory_exists?
@@ -13,43 +77,35 @@ unless Jepeto::posts_directory_exists?
   end
 end
 
-# -Option-Parsing---------------------------------------------------------------
-title = ""
-ARGV.each do |arg|
-  unless arg.match(/^-{1,2}[a-zA-Z][a-z]*/)
-    title << " "
-    title << arg
-  end
-end
-
-options = OptionsParser.parse!(title)
-
-# Jepete REALLY needs a title
-if options.empty?
-  if ARGV.empty?
-    puts "Please enter a title:"
-    title = $stdin.gets.chomp
-    options[:title] = title unless title.empty?
-  else
-    options[:title] = ARGV.join(" ")
-  end
+# -Option-and-Query-Parsing-----------------------------------------------------
+parser = Jepeto::Parser.new
+begin
+  options, query = parser.parse!
+rescue InvalidQueryTypeError
+  options = parser.options
+  query = get_query
+rescue InvalidNameOrTitleError
+  options = parser.options
+  query = {type: ARGV.first}
+  query[:id] = get_query_id(query[:type])
 end
 # ------------------------------------------------------------------------------
 
-begin
-  post = Jepeto::JekyllPost.new(options)
-  file = post.save!
-rescue ArgumentError => error
-  puts "ERROR: " + error.message
-  exit
-rescue RuntimeError => error
-  puts "ERROR: " + error.message
-  exit
-rescue NameError => error
-  puts "ERROR: " + error.message
-end
+if query[:type] == "post"
+  options[:title] = query[:id]
+  begin
+    post = Jepeto::JekyllPost.new(options)
+    file = post.save!
 
-unless file.nil?
-  puts "Post successfully created! Full path: \n"
-  puts file
+    unless file.nil?
+      puts "Post successfully created! Full path: \n"
+      puts file
+    end
+  rescue StandardError => error
+    # TODO: make the error message red
+    puts error.message + "!"
+  end
+elsif query[:type] == "page"
+
+elsif query[:type] == "sitemap"
 end
