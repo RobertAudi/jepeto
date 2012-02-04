@@ -1,8 +1,22 @@
 module Jepeto
+  class Parser
+    VALID_QUERIES = ["post", "page", "sitemap"]
 
-  class OptionsParser
+    attr_reader :options
 
-    def self.parse!(the_real_title = nil)
+    def parse!
+      return parse_options, parse_query
+    end
+
+    # OPTIMIZE: This method may be fucking useless
+    # Check if an argument is a flag or not
+    def is_flag?(arg)
+      arg.match(/^-{1,2}[a-zA-Z][a-z]*/)
+    end
+
+    private
+
+    def parse_options
       options = {}
 
       option_parser = OptionParser.new do |opt|
@@ -15,17 +29,13 @@ module Jepeto
         opt.separator ""
         opt.separator "Options"
 
-        opt.on( "-t", "--title=TITLE", "The post title.") do |title|
-          options[:title] = title
-        end
-
         opt.on( "-e", "--extension=EXTENSION", "The extension of the post file.") do |extension|
           options[:extension] = extension
         end
 
         # TODO: Add the date option
 
-        opt.on( "--draft=DRAFT", "Whether or not to create a draft post") do |draft|
+        opt.on( "--draft", "Whether or not to create a draft post") do
           options[:draft] = true
         end
 
@@ -42,12 +52,34 @@ module Jepeto
         opt.separator ""
       end
 
-      if options[:title].nil? && !the_real_title.nil? && !the_real_title.empty?
-        options[:title] = the_real_title
+      option_parser.parse!
+
+      # NOTE: I need to set the instance variable in case the query is invalid
+      # In that case an exception would be raised an the options would be lost
+      @options = options
+      options
+    end
+
+    # Parse and validate the query and the title/name of the post/page
+    def parse_query
+      if ARGV.empty?
+        raise Jepeto::InvalidQueryTypeError, "The query can't be blank"
+      else
+        validate_query!
+        {type: ARGV[0], id: ARGV[1]}
+      end
+    end
+
+    def validate_query!
+      # Check that there is a query
+      if !VALID_QUERIES.include?(ARGV[0])
+        raise Jepeto::InvalidQueryTypeError, "Invalid query"
       end
 
-      option_parser.parse!
-      options
+      # Check that there is a title/name
+      if ARGV[1].nil?
+        raise Jepeto::InvalidNameOrTitleError, "Name/Title can't be blank"
+      end
     end
   end
 end
