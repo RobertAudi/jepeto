@@ -32,6 +32,7 @@ module Jepeto
       Dir.chdir("..") if Dir.getwd.include?(POST_DIRECTORY)
       post_file = File.join(POST_DIRECTORY, @options[:filename])
 
+      # OPTIMIZE: Maybe those two checks should go in the initialize method
       unless File.writable?(POST_DIRECTORY)
         raise PostDirectoryNotWritableError, "The post directory is not writable"
         exit
@@ -57,6 +58,7 @@ module Jepeto
       config_file = File.expand_path("~/.jprc")
       if File.exists?(config_file)
         begin
+          # BUG: Don't get the first element of the array, the user may order the preferences differently!
           # Get the post hash from the .jprc file
           jprc_options = YAML.load(File.open(config_file)).first.fetch("post")
 
@@ -68,7 +70,7 @@ module Jepeto
           # merge_options method for more info
           options = merge_options(options, jprc_options)
         rescue
-          puts "Could not parse the .jprc file"
+          raise UnableToParseJpRcError, "Could not parse the .jprc file"
         end
       end
 

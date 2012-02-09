@@ -77,7 +77,8 @@ module Jepeto
       end
 
       # Check that there is a title/name
-      if ARGV[1].nil?
+      # Sitemaps don't have a name
+      if ARGV[1].nil? && ARGV[0] != "sitemap"
         raise Jepeto::InvalidNameOrTitleError, "Name/Title can't be blank"
       end
     end

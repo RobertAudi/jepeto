@@ -98,7 +98,7 @@ if query[:type] == "post"
     file = post.save!
 
     unless file.nil?
-      puts "Post successfully created! Full path: \n"
+      puts "Post successfully created! Full path:\n"
       puts file
     end
   rescue StandardError => error
@@ -106,6 +106,22 @@ if query[:type] == "post"
     puts error.message + "!"
   end
 elsif query[:type] == "page"
-
 elsif query[:type] == "sitemap"
+  begin
+    sitemap = Jepeto::Sitemap.new
+    file = sitemap.generate!
+  rescue UnableToParseJpRcError => error
+    # TODO: Make the error msg red
+    puts error.message
+
+    puts "\nPlease enter the root of your website, e.g.: http://www.example.com : "
+    url = $stdin.gets
+    sitemap = Jepeto::Sitemap.new
+    file = sitemap.generate!(url)
+  end
+
+  unless file.nil?
+    puts "Sitemap successfully created! Full path:\n"
+    puts file
+  end
 end

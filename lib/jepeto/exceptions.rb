@@ -28,4 +28,7 @@ module Jepeto
 
   class PostFileAlreadyExistsError < NameError
   end
+
+  class UnableToParseJpRcError < RuntimeError
+  end
 end
