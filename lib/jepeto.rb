@@ -7,6 +7,7 @@ require "nokogiri"
 # Personal requirements
 require_relative "./jepeto/version"
 require_relative "./jepeto/jekyll_post"
+require_relative "./jepeto/page"
 require_relative "./jepeto/sitemap"
 require_relative "./jepeto/exceptions"
 require_relative "./jepeto/parser"

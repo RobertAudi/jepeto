@@ -8,12 +8,6 @@ module Jepeto
       return parse_options, parse_query
     end
 
-    # OPTIMIZE: This method may be fucking useless
-    # Check if an argument is a flag or not
-    def is_flag?(arg)
-      arg.match(/^-{1,2}[a-zA-Z][a-z]*/)
-    end
-
     private
 
     def parse_options

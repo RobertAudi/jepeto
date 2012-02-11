@@ -126,19 +126,6 @@ module Jepeto
       end
     end
 
-    # All nil keys in the options hash will
-    # be replaced by the corresponding keys
-    # from the new_options hash
-    def merge_options(options, new_options)
-      new_options.each do |option, value|
-        if options[option].nil?
-          options[option] = value
-        end
-      end
-
-      options
-    end
-
     def generate_file_options!
       @options[:slug] = slugalize(@options[:title])
       @options[:filename] = "#{@options[:date]}-#{@options[:slug]}.#{@options[:extension]}"

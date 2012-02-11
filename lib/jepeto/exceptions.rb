@@ -29,6 +29,15 @@ module Jepeto
   class PostFileAlreadyExistsError < NameError
   end
 
+  class PageFolderAlreadyExistsError < NameError
+  end
+
+  class PageFileAlreadyExistsError < NameError
+  end
+
   class UnableToParseJpRcError < RuntimeError
+  end
+
+  class NotInRightLocationError < RuntimeError
   end
 end

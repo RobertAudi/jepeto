@@ -1,7 +1,5 @@
 #!/usr/bin/env ruby
 
-require "pp"
-
 require_relative "../lib/jepeto"
 include Jepeto
 
@@ -106,6 +104,19 @@ if query[:type] == "post"
     puts error.message + "!"
   end
 elsif query[:type] == "page"
+  options[:name] = query[:id]
+  begin
+    page = Jepeto::Page.new(options)
+    file = page.generate!
+
+    unless file.nil?
+      puts "Page was successfully created! Full path:\n"
+      puts file
+    end
+  rescue StandardError => error
+    # TODO: make the error message red
+    puts error.message + "!"
+  end
 elsif query[:type] == "sitemap"
   begin
     sitemap = Jepeto::Sitemap.new
