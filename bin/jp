@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+require "rainbow"
+
 require_relative "../lib/jepeto"
 include Jepeto
 
@@ -18,8 +20,7 @@ def get_query
   elsif answer == "3"
     query[:type] = "sitemap"
   else
-    # TODO: Make this text red
-    puts "\nJepeto doesn't understand what you want..."
+    $stderr.puts "\nERROR:".foreground(:red) + " Jepeto doesn't understand what you want..."
     exit
   end
 
@@ -38,7 +39,7 @@ def get_query
     query[:id] = $stdin.gets.chomp
 
     if query[:id].empty?
-      puts "You can't create a #{query[:type]} without a #{query_type_label}..."
+      $stderr.puts "ERROR:".foreground(:red) + " You can't create a #{query[:type]} without a #{query_type_label}..."
       exit
     end
   end
@@ -57,7 +58,7 @@ def get_query_id(query_type)
   id = $stdin.gets.chomp
 
   if id.empty?
-    puts "The #{query_type} #{query_type_label} can't be blank"
+    $strerr.puts "ERROR:".foreground(:red) + " The #{query_type} #{query_type_label} can't be blank"
     exit
   else
     id
@@ -70,7 +71,7 @@ unless Jepeto::posts_directory_exists?
   if Jepeto::in_posts_directory?
     Dir.chdir("..")
   else
-    $stderr.puts "ERROR: Unable to find the posts directory"
+    $stderr.puts "ERROR:".foreground(:red) + " Unable to find the posts directory"
     exit
   end
 end
@@ -96,12 +97,11 @@ if query[:type] == "post"
     file = post.save!
 
     unless file.nil?
-      puts "Post successfully created! Full path:\n"
+      puts "Post successfully created! Full path:\n".foreground(:green)
       puts file
     end
   rescue StandardError => error
-    # TODO: make the error message red
-    puts error.message + "!"
+    $stderr.puts "ERROR:".foreground(:red) + " #{error.message}"
   end
 elsif query[:type] == "page"
   options[:name] = query[:id]
@@ -110,20 +110,18 @@ elsif query[:type] == "page"
     file = page.generate!
 
     unless file.nil?
-      puts "Page was successfully created! Full path:\n"
+      puts "Page was successfully created! Full path:\n".foreground(:green)
       puts file
     end
   rescue StandardError => error
-    # TODO: make the error message red
-    puts error.message + "!"
+    $stderr.puts "ERROR:".foreground(:red) + " #{error.message}!"
   end
 elsif query[:type] == "sitemap"
   begin
     sitemap = Jepeto::Sitemap.new
     file = sitemap.generate!
   rescue UnableToParseJpRcError => error
-    # TODO: Make the error msg red
-    puts error.message
+    puts error.message.foreground(:red)
 
     puts "\nPlease enter the root of your website, e.g.: http://www.example.com : "
     url = $stdin.gets
@@ -132,7 +130,7 @@ elsif query[:type] == "sitemap"
   end
 
   unless file.nil?
-    puts "Sitemap successfully created! Full path:\n"
+    puts "Sitemap successfully created! Full path:\n".foreground(:green)
     puts file
   end
 end

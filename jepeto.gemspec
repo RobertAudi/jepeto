@@ -13,6 +13,7 @@ Gem::Specification.new do |s|
   s.description = %q{Generate jekyll posts painlessly}
 
   s.add_dependency("nokogiri", "1.5.0")
+  s.add_dependency("rainbow", "1.1.3")
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
