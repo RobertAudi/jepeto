@@ -1,6 +1,6 @@
 module Jepeto
   class Sitemap
-    SITE_DIRECTORY = "_site"
+    SITE_DIRECTORY = '_site'
 
     def initialize
       check_if_site_folder_is_valid!
@@ -8,12 +8,12 @@ module Jepeto
 
     def generate!(url = nil)
       # Move out of the site directory if necessary
-      Dir.chdir("..") if Dir.getwd.include?(SITE_DIRECTORY)
+      Dir.chdir('..') if Dir.getwd.include?(SITE_DIRECTORY)
 
-      sitemap_file = File.join(SITE_DIRECTORY, "sitemap.xml")
+      sitemap_file = File.join(SITE_DIRECTORY, 'sitemap.xml')
       files = list_files
-      files.delete_if { |file| File.directory?(file) || File.extname(file) != ".html" }
-      files.collect { |file| file.slice! "_site/" }
+      files.delete_if { |file| File.directory?(file) || File.extname(file) != '.html' }
+      files.collect { |file| file.slice! '_site/' }
 
       @url = url || get_site_url
 
@@ -43,18 +43,18 @@ module Jepeto
 
     def get_site_url
       # FIXME: Duplicated code, check jekyll_post.rb
-      config_file = File.expand_path("~/.jprc")
+      config_file = File.expand_path('~/.jprc')
       if File.exists?(config_file)
         # Get the post hash from the .jprc file
         jprc_options = YAML.load(File.open(config_file))
 
         # Delete post and page options
-        jprc_options.delete_if { |option| !option.keys.include?("sitemap") }
+        jprc_options.delete_if { |option| !option.keys.include?('sitemap') }
 
         # Get the url from the options
-        site_url = jprc_options.first.fetch("sitemap").fetch("url")
+        site_url = jprc_options.first.fetch('sitemap').fetch('url')
 
-        if site_url[-1] == "/"
+        if site_url[-1] == '/'
           site_url.slice!(-1)
         end
 
@@ -63,8 +63,8 @@ module Jepeto
     end
 
     def generate_xml!(files)
-      builder = Nokogiri::XML::Builder.new(:encoding => "UTF-8") do |xml|
-        xml.urlset("xmlns" => "http://www.sitemaps.org/schemas/sitemap/0.9") {
+      builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
+        xml.urlset('xmlns' => 'http://www.sitemaps.org/schemas/sitemap/0.9') {
           files.each do |file|
             xml.url {
               xml.loc "#{@url}#{file}"

@@ -1,7 +1,6 @@
 module Jepeto
   # TODO: Add some documentation here
 
-
   class InvalidQueryTypeError < ArgumentError
   end
 
@@ -27,6 +26,9 @@ module Jepeto
   end
 
   class PostFileAlreadyExistsError < NameError
+  end
+
+  class PostFileDoesntExistError < NameError
   end
 
   class PageFolderAlreadyExistsError < NameError

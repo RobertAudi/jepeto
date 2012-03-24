@@ -11,26 +11,26 @@ module Jepeto
     def generate!
       # Make sure the user is in the right location
       unless File.exists?(Jepeto::JekyllPost::POST_DIRECTORY)
-        raise NotInRightLocationError, "You need to be in the root of your jekyll site to create pages"
+        raise NotInRightLocationError, 'You need to be in the root of your jekyll site to create pages'
       end
 
       if @options[:create_folder]
         folder = File.expand_path(File.join(Dir.getwd, @options[:name]))
 
         if File.exists?(folder)
-          raise PageFolderAlreadyExistsError, "The page folder already exists"
+          raise PageFolderAlreadyExistsError, 'The page folder already exists'
           exit
         end
 
         # Create the page folder to have pretty urls
         Dir.mkdir(folder)
 
-        file = File.join(folder, "index.html")
+        file = File.join(folder, 'index.html')
       else
-        file = File.join(File.expand_path("."), @options[:name])
+        file = File.join(File.expand_path('.'), @options[:name])
 
         if File.exists?(file)
-          raise PageFileAlreadyExistsError, "The page file already exists"
+          raise PageFileAlreadyExistsError, 'The page file already exists'
           exit
         end
       end
@@ -58,7 +58,7 @@ module Jepeto
     end
 
     def get_jprc_options
-      config_file = File.expand_path("~/.jprc")
+      config_file = File.expand_path('~/.jprc')
       if File.exists?(config_file)
         begin
           # Get the post hash from the .jprc file
@@ -66,7 +66,7 @@ module Jepeto
 
           # Delete the elements that we don't want,
           # ie: sitemap and post in this case
-          options.delete_if { |option| !option.keys.include?("page") }
+          options.delete_if { |option| !option.keys.include?('page') }
 
           options = options.first.fetch('page')
         rescue

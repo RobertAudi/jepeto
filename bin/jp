@@ -1,36 +1,80 @@
 #!/usr/bin/env ruby
 
-require "rainbow"
+require 'rainbow'
 
-require_relative "../lib/jepeto"
+require_relative '../lib/jepeto'
 include Jepeto
 
 # -Utility-functions------------------------------------------------------------
+def get_correct_draft
+  drafts = Jepeto::Publisher.drafts
+
+  if drafts.empty?
+    $stdout.puts 'There are no drafts'
+    exit
+  end
+
+  $stdout.puts 'Here is a list of draft posts:'
+  drafts.each_with_index do |draft, index|
+    $stdout.puts "#{index + 1}. #{Jepeto::Publisher.normalize draft}"
+  end
+
+  $stdout.print 'Which post do you want to publish? '
+  answer = $stdin.gets
+
+  if answer.to_i == 0
+    error =  'Error:'.foreground(:red)
+    error << 'You have to enter the number of the post!'
+    $stderr.puts error
+    # FIXME: Instead of exiting, show the list of drafts again!
+    exit
+  end
+
+  drafts[(answer.to_i) - 1]
+end
+
 def get_query
   query = {}
 
+  # Welcome message
+  $stdout.puts 'Welcome to Jepeto'
+
   # First get the query type from the user
-  print "Do you want to create a new post[1], a new page[2] or a new sitemap[3]? [1/2/3] "
+  $stdout.puts 'Here are your options:'
+
+  options =  "\t1. Create a new post\n"
+  options << "\t2. Create a new page\n"
+  options << "\t3. Generate a sitemap\n"
+  options << "\t4. Publish a post"
+  $stdout.puts options
+
+  $stdout.print 'What do you want to do [1/2/3/4]? '
+
   answer = $stdin.gets.chomp
 
-  if answer == "1"
-    query[:type] = "post"
-  elsif answer == "2"
-    query[:type] = "page"
-  elsif answer == "3"
-    query[:type] = "sitemap"
+  # OPTIMIZE: Change that to a case
+  if answer == '1'
+    query[:type] = 'post'
+  elsif answer == '2'
+    query[:type] = 'page'
+  elsif answer == '3'
+    query[:type] = 'sitemap'
+  elsif answer == '4'
+    query[:type] = 'publish'
   else
-    $stderr.puts "\nERROR:".foreground(:red) + " Jepeto doesn't understand what you want..."
+    error =  "\nERROR:".foreground(:red)
+    error << " Jepeto doesn't understand what you want..."
+    $stderr.puts error
     exit
   end
 
   # Get the post title or the page name.
   # Doesn't apply for sitemaps
-  if query[:type] == "post" || query[:type] == "page"
-    if query[:type] == "post"
-      query_type_label = "title"
-    elsif query[:type] == "page"
-      query_type_label = "name"
+  if query[:type] == 'post' || query[:type] == 'page'
+    if query[:type] == 'post'
+      query_type_label = 'title'
+    elsif query[:type] == 'page'
+      query_type_label = 'name'
     end
 
     # Get the query id, which is the title of
@@ -39,26 +83,32 @@ def get_query
     query[:id] = $stdin.gets.chomp
 
     if query[:id].empty?
-      $stderr.puts "ERROR:".foreground(:red) + " You can't create a #{query[:type]} without a #{query_type_label}..."
+      error =  'ERROR:'.foreground(:red)
+      error << " You can't create a #{query[:type]} without a #{query_type_label}"
+      $stderr.puts error
       exit
     end
+  elsif query[:type] == 'publish'
+    query[:id] = get_correct_draft
   end
 
   query
 end
 
 def get_query_id(query_type)
-  if query_type == "post"
-    query_type_label = "title"
-  elsif query_type == "page"
-    query_type_label = "name"
+  if query_type == 'post'
+    query_type_label = 'title'
+  elsif query_type == 'page'
+    query_type_label = 'name'
   end
 
   puts "Please enter a #{query_type} #{query_type_label}:\n"
   id = $stdin.gets.chomp
 
   if id.empty?
-    $strerr.puts "ERROR:".foreground(:red) + " The #{query_type} #{query_type_label} can't be blank"
+    error =  'ERROR:'.foreground(:red)
+    error << " The #{query_type} #{query_type_label} can't be blank"
+    $strerr.puts error
     exit
   else
     id
@@ -69,9 +119,11 @@ end
 # cd to the right directory
 unless Jepeto::posts_directory_exists?
   if Jepeto::in_posts_directory?
-    Dir.chdir("..")
+    Dir.chdir('..')
   else
-    $stderr.puts "ERROR:".foreground(:red) + " Unable to find the posts directory"
+    error =  'ERROR:'.foreground(:red)
+    error << ' Unable to find the posts directory'
+    $stderr.puts error
     exit
   end
 end
@@ -90,7 +142,7 @@ rescue InvalidNameOrTitleError
 end
 # ------------------------------------------------------------------------------
 
-if query[:type] == "post"
+if query[:type] == 'post'
   options[:title] = query[:id]
   begin
     post = Jepeto::JekyllPost.new(options)
@@ -100,10 +152,12 @@ if query[:type] == "post"
       puts "Post successfully created! Full path:\n".foreground(:green)
       puts file
     end
-  rescue StandardError => error
-    $stderr.puts "ERROR:".foreground(:red) + " #{error.message}"
+  rescue StandardError => e
+    error =  'ERROR:'.foreground(:red)
+    error << " #{e.message}"
+    $stderr.puts error
   end
-elsif query[:type] == "page"
+elsif query[:type] == 'page'
   options[:name] = query[:id]
   begin
     page = Jepeto::Page.new(options)
@@ -113,15 +167,17 @@ elsif query[:type] == "page"
       puts "Page was successfully created! Full path:\n".foreground(:green)
       puts file
     end
-  rescue StandardError => error
-    $stderr.puts "ERROR:".foreground(:red) + " #{error.message}!"
+  rescue StandardError => e
+    error =  'ERROR:'.foreground(:red)
+    error << " #{e.message}!"
+    $stderr.puts error
   end
-elsif query[:type] == "sitemap"
+elsif query[:type] == 'sitemap'
   begin
     sitemap = Jepeto::Sitemap.new
     file = sitemap.generate!
-  rescue UnableToParseJpRcError => error
-    puts error.message.foreground(:red)
+  rescue UnableToParseJpRcError => e
+    puts e.message.foreground(:red)
 
     puts "\nPlease enter the root of your website, e.g.: http://www.example.com : "
     url = $stdin.gets
@@ -133,4 +189,7 @@ elsif query[:type] == "sitemap"
     puts "Sitemap successfully created! Full path:\n".foreground(:green)
     puts file
   end
+elsif query[:type] = 'publish'
+  query[:id] = get_correct_draft if query[:id].nil?
+  post = Jepeto::Publisher.publish!(query[:id])
 end

@@ -21,11 +21,15 @@ module Jepeto
       'textile'
     ]
 
-    POST_DIRECTORY = "_posts"
+    POST_DIRECTORY = '_posts'
 
-    def initialize(options)
-      @options = check_options(options)
-      generate_file_options!
+    def initialize(title_or_options)
+      if title_or_options.is_a? String
+        @options = get_options
+      elsif title_or_options.is_a? Hash
+        @options = check_options(title_or_options)
+        generate_file_options!
+      end
     end
 
     def save!
@@ -34,12 +38,12 @@ module Jepeto
 
       # OPTIMIZE: Maybe those two checks should go in the initialize method
       unless File.writable?(POST_DIRECTORY)
-        raise PostDirectoryNotWritableError, "The post directory is not writable"
+        raise PostDirectoryNotWritableError, 'The post directory is not writable'
         exit
       end
 
       if File.exists?(post_file)
-        raise PostFileAlreadyExistsError, "The post file already exists"
+        raise PostFileAlreadyExistsError, 'The post file already exists'
         exit
       end
 
@@ -52,15 +56,19 @@ module Jepeto
 
     private
 
+    def get_options
+      
+    end
+
     def check_options(options)
       # Check the .jprc file
 
-      config_file = File.expand_path("~/.jprc")
+      config_file = File.expand_path('~/.jprc')
       if File.exists?(config_file)
         begin
           # BUG: Don't get the first element of the array, the user may order the preferences differently!
           # Get the post hash from the .jprc file
-          jprc_options = YAML.load(File.open(config_file)).first.fetch("post")
+          jprc_options = YAML.load(File.open(config_file)).first.fetch('post')
 
           # Convert the hash keys to symbols
           jprc_options = jprc_options.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
@@ -70,7 +78,7 @@ module Jepeto
           # merge_options method for more info
           options = merge_options(options, jprc_options)
         rescue
-          raise UnableToParseJpRcError, "Could not parse the .jprc file"
+          raise UnableToParseJpRcError, 'Could not parse the .jprc file'
         end
       end
 
@@ -88,13 +96,13 @@ module Jepeto
       # Validate date
       # The date must be in the format YYYY-MM-DD
       unless options[:date] =~ /^\d{4}-\d{2}-\d{2}$/
-        raise InvalidDateFormatError, "The date must be in the format YYYY-MM-DD"
+        raise InvalidDateFormatError, 'The date must be in the format YYYY-MM-DD'
         exit
       end
 
       # Validate the layout
       # Basically if the layout doesn't exist it's invalid
-      layouts = Dir.glob("_layouts/*")
+      layouts = Dir.glob('_layouts/*')
       layouts.each do |layout|
         layout.gsub!(/^_layouts\/(.*)\..*$/, '\1')
       end
@@ -121,7 +129,7 @@ module Jepeto
       # Validate the published state
       # it can either be true or false
       unless [TrueClass, FalseClass].include? options[:published].class
-        raise InvalidBooleanTypeError, "The published state must be either true or false"
+        raise InvalidBooleanTypeError, 'The published state must be either true or false'
         exit
       end
     end
