@@ -192,4 +192,7 @@ elsif query[:type] == 'sitemap'
 elsif query[:type] = 'publish'
   query[:id] = get_correct_draft if query[:id].nil?
   post = Jepeto::Publisher.publish!(query[:id])
+
+  puts "Post successfully published! Full path:\n".foreground(:green)
+  puts post
 end
