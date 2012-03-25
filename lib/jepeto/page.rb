@@ -52,7 +52,7 @@ module Jepeto
 
       # If the user supplied an extension as part of the page name,
       # don't create a folder for the page.
-      options[:create_folder] = options[:extension].empty?
+      options[:create_folder] = (options.include?(:create_folder)) ? options[:create_folder]: options[:extension].empty?
 
       options
     end
@@ -62,14 +62,17 @@ module Jepeto
       if File.exists?(config_file)
         begin
           # Get the post hash from the .jprc file
-          options = YAML.load(File.open(config_file))
+          options = YAML.load(File.open(config_file)).delete_if do |option|
+            !option.include?("page")
+          end
 
-          # Delete the elements that we don't want,
-          # ie: sitemap and post in this case
-          options.delete_if { |option| !option.keys.include?('page') }
+          # Try to get the .jprc options for pages
+          options = (options.empty?) ? {} : (options.first["page"] || {})
 
-          options = options.first.fetch('page')
+          # Convert the hash keys to symbols
+          options = options.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
         rescue
+          raise UnableToParseJpRcError, 'Could not parse the .jprc file'
         end
       end
 

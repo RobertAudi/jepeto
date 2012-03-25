@@ -56,10 +56,6 @@ module Jepeto
 
     private
 
-    def get_options
-      
-    end
-
     def check_options(options)
       # Check the .jprc file
 
@@ -68,7 +64,12 @@ module Jepeto
         begin
           # BUG: Don't get the first element of the array, the user may order the preferences differently!
           # Get the post hash from the .jprc file
-          jprc_options = YAML.load(File.open(config_file)).first.fetch('post')
+          jprc_options = YAML.load(File.open(config_file)).delete_if do |option|
+            !option.keys.include?("post")
+          end
+
+          # Try to get the .jprc options for posts
+          jprc_options = (jprc_options.empty?) ? {} : (jprc_options.first["post"] || {})
 
           # Convert the hash keys to symbols
           jprc_options = jprc_options.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
@@ -77,6 +78,8 @@ module Jepeto
           # See the documentation for the
           # merge_options method for more info
           options = merge_options(options, jprc_options)
+
+          p options
         rescue
           raise UnableToParseJpRcError, 'Could not parse the .jprc file'
         end
